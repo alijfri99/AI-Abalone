@@ -1,159 +1,55 @@
 extends Node
 
-enum {EMPTY, BLACK, WHITE}
-var current_state = []
+var board = []
+var neighbors = []
+enum {EMPTY, BLACK, WHITE} # used to represent the board
+enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
 
 func _ready():
-	current_state.append(fill_row(5, 0, 4, WHITE))
-	current_state.append(fill_row(6, 0, 5, WHITE))
-	current_state.append(fill_row(7, 2, 4, WHITE))
-	current_state.append(fill_row(8, 0, 7, EMPTY))
-	current_state.append(fill_row(9, 0, 8, EMPTY))
-	current_state.append(fill_row(8, 0, 7, EMPTY))
-	current_state.append(fill_row(7, 2, 4, BLACK))
-	current_state.append(fill_row(6, 0, 5, BLACK))
-	current_state.append(fill_row(5, 0, 4, BLACK))
-	var l = find_three_clusters(current_state, BLACK)
-	print(l)
-
-func fill_row(row_size, start, finish, element): # fills a row with 'element' from the 'start' column to the 'end' column
-	var result = []
-	for i in range(row_size):
-		if i >= start and i <= finish:
-			result.append(element)
-		else:
-			result.append(EMPTY)
-	return result
+	init_board()
+	test_board()
+		
+func init_board():
+	var file = File.new()
+	file.open("res://adjacency_lists.json", File.READ)
+	var raw_data = file.get_as_text()
+	var adjacency_lists = parse_json(raw_data)
+	file.close() # reading the file that specifies the adjacency lists and converting it to a dictionary
 	
-func find_one_clusters(state, element): # finds all the 1-element clusters of 'element' in a state
-		var result = []
-		for row in range(len(state)):
-			for column in range(len(state[row])):
-				if state[row][column] == element:
-					var new_cluster = Cluster.new(row, column, Cluster.ONE)
-					result.append(new_cluster)
-		return result
+	for i in range(61):
+		var cell_value = EMPTY
+		if (i >= 0 and i <= 10) or (i >= 13 and i <= 15):
+			cell_value = WHITE
+		elif (i >= 45 and i <= 47) or (i >= 50 and i <= 60):
+			cell_value = BLACK
+		else:
+			cell_value = EMPTY # determining the value of the current board cell
 		
-func find_two_clusters(state, element): # finds all the 2-element clusters of 'element' in a state
-	var result = []
-	for row in range(len(state)):
-		for column in range(len(state[row])):
-			if check_two_s_cluster(state, row, column, element):
-				var new_two_s_cluster = Cluster.new(row, column, Cluster.TWO_S)
-				result.append(new_two_s_cluster)
-				
-			if check_two_ld_cluster(state, row, column, element):
-				var new_two_ld_cluster = Cluster.new(row, column, Cluster.TWO_LD)
-				result.append(new_two_ld_cluster)
-				
-			if check_two_rd_cluster(state, row, column, element):
-				var new_two_rd_cluster = Cluster.new(row, column, Cluster.TWO_RD)
-				result.append(new_two_rd_cluster)
-	return result
+		board.append(cell_value)
+		neighbors.append(adjacency_lists[str(i)])
 	
-func find_three_clusters(state, element): # finds all the 2-element clusters of 'element' in a state
-	var result = []
-	for row in range(len(state)):
-		for column in range(len(state[row])):
-			if check_three_s_cluster(state, row, column, element):
-				var new_three_s_cluster = Cluster.new(row, column, Cluster.THREE_S)
-				result.append(new_three_s_cluster)
+func test_board():
+	for i in range(61):
+		if neighbors[i][L] != -1: # check the correctness of left neighbors
+			if neighbors[neighbors[i][L]][R] != i:
+				print("Incorrect Left Neighbor: ", i, ", ", neighbors[neighbors[i][L]][R])
 				
-			if check_three_ld_cluster(state, row, column, element):
-				var new_three_ld_cluster = Cluster.new(row, column, Cluster.THREE_LD)
-				result.append(new_three_ld_cluster)
+		if neighbors[i][UL] != -1: # check the correctness of up left neighbors
+			if neighbors[neighbors[i][UL]][DR] != i:
+				print("Incorrect Up Left Neighbor: ", i, ", ", neighbors[neighbors[i][UL]][DR])
+		
+		if neighbors[i][UR] != -1: # check the correctness of up right neighbors
+			if neighbors[neighbors[i][UR]][DL] != i:
+				print("Incorrect Up Right Neighbor: ", i, ", ", neighbors[neighbors[i][UR]][DL])
 				
-			if check_three_rd_cluster(state, row, column, element):
-				var new_three_rd_cluster = Cluster.new(row, column, Cluster.THREE_RD)
-				result.append(new_three_rd_cluster)
-	return result
-			
-func check_two_s_cluster(state, row, column, element): # checks the existence of a 'TWO_S' cluster of type 'element' in a state, starting from a specific row and column
-	if (column + 1) < len(state[row]): # checking to see if the next column in the row exists
-		if state[row][column] == element and state[row][column + 1] == element:
-			return true
-		else:
-			return false
-	else: # there is no next element in the row
-		return false
-			
-func check_two_ld_cluster(state, row, column, element): # checks the existence of a 'TWO_LD' cluster of type 'element' in a state, starting from a specific row and column
-	if (row + 1) < len(state): # checking to see if the next row exists
-		if len(state[row]) < len(state[row + 1]): # checking in the upper half of the board is different from checking in the lower half
-			if state[row][column] == element and state[row + 1][column] == element:
-				return true
-			else:
-				return false
-		else:
-			if (column - 1) >= 0: # checking to see if the previous column exists in the next row
-				if state[row][column] == element and state[row + 1][column - 1] == element:
-					return true
-				else:
-					return false
-			else:
-				return false
-	else: # there is no next row
-		return false
-		
-func check_two_rd_cluster(state, row, column, element): # checks the existence of a 'TWO_RD' cluster of type 'element' in a state, starting from a specific row and column
-	if (row + 1) < len(state): # checks to see if the next row exists
-		if len(state[row]) < len(state[row + 1]):
-			if state[row][column] == element and state[row + 1][column + 1] == element:
-				return true
-			else:
-				return false
-		else:
-			if column < len(state[row + 1]): # checking to see if the current column exists in the next row
-				if state[row][column] == element and state[row + 1][column] == element:
-					return true
-				else:
-					return false
-			else:
-				return false
-	else: # there is no next row
-		return false
-		
-func check_three_s_cluster(state, row, column, element): # checks the existence of a 'THREE_S' cluster of type 'element' in a state, starting from a specific row and column
-	if (column + 1) < len(state[row]):
-		if check_two_s_cluster(state, row, column, element) and check_two_s_cluster(state, row, column + 1, element):
-			return true
-		else:
-			return false
-	else:
-		return false
-		
-func check_three_ld_cluster(state, row, column, element): # checks the existence of a 'THREE_LD' cluster of type 'element' in a state, starting from a specific row and column
-	if (row + 1) < len(state):
-		if len(state[row]) < len(state[row + 1]):
-			if check_two_ld_cluster(state, row, column, element) and check_two_ld_cluster(state, row + 1, column,element):
-				return true
-			else:
-				return false
-		else:
-			if (column - 1) >= 0:
-				if check_two_ld_cluster(state, row, column, element) and check_two_ld_cluster(state, row + 1, column - 1, element):
-					return true
-				else:
-					return false
-			else:
-				return false
-	else:
-		return false
-		
-func check_three_rd_cluster(state, row, column, element): # checks the existence of a 'THREE_RD' cluster of type 'element' in a state, starting from a specific row and column
-	if (row + 1) < len(state):
-		if len(state[row]) < len(state[row + 1]):
-			if check_two_rd_cluster(state, row, column, element) and check_two_rd_cluster(state, row + 1, column + 1, element):
-				return true
-			else:
-				return false
-		else:
-			if column < len(state[row + 1]):
-				if check_two_rd_cluster(state, row, column, element) and check_two_rd_cluster(state, row + 1, column, element):
-					return true
-				else:
-					return false
-			else:
-				return false
-	else:
-		return false
+		if neighbors[i][R] != -1: # check the correctness of right neighbors
+			if neighbors[neighbors[i][R]][L] != i:
+				print("Incorrect Right Neighbor: ", i, ", ", neighbors[neighbors[i][R]][L])
+				
+		if neighbors[i][DR] != -1: # check the correctness of down right neighbors
+			if neighbors[neighbors[i][DR]][UL] != i:
+				print("Incorrect Down Right Neighbor: ", i, ", ", neighbors[neighbors[i][DR]][UL])
+				
+		if neighbors[i][DL] != -1:
+			if neighbors[neighbors[i][DL]][UR] != i:
+				print("Incorrect Down Left Neighbor: ", i, ", ", neighbors[neighbors[i][DL]][UR])
