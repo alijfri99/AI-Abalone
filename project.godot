@@ -24,6 +24,11 @@ config/name="Abalone"
 run/main_scene="res://Scenes/Game.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+ClusterFinder="*res://Scripts/ClusterFinder.gd"
+BoardManager="*res://Scripts/BoardManager.gd"
+
 [gdnative]
 
 singletons=[  ]
