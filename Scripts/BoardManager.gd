@@ -8,8 +8,11 @@ enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
 func _ready():
 	init_board()
 	# test_board()
-	var temp = ClusterFinder.find_three_clusters(board, UL, BLACK)
-	print(temp)
+	var state = State.new(board, 0, 0)
+	var result = Successor.calculate_successor(state, BLACK)
+	for a in result:
+		print(a.board)
+	print(board)
 		
 func init_board():
 	var file = File.new()
