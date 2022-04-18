@@ -1,6 +1,6 @@
 extends Node
 
-var board = []
+var current_board = []
 var neighbors = []
 enum {EMPTY, BLACK, WHITE} # used to represent the board
 enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
@@ -8,11 +8,10 @@ enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
 func _ready():
 	init_board()
 	# test_board()
-	var state = State.new(board, 0, 0)
-	var result = Successor.calculate_successor(state, BLACK)
-	for a in result:
-		print(a.board)
-	print(board)
+	var state = State.new(current_board, 0, 0)
+	state.board[32] = BLACK
+	state.board[28] = WHITE
+	Successor.calculate_successor(state, WHITE)
 		
 func init_board():
 	var file = File.new()
@@ -30,8 +29,29 @@ func init_board():
 		else:
 			cell_value = EMPTY # determining the value of the current board cell
 		
-		board.append(cell_value)
+		current_board.append(cell_value)
 		neighbors.append(adjacency_lists[str(i)])
+
+func get_nth_neighbor(cell_number, n, direction): # returns the nth neighbor of a cell in a given direction
+		var neighbor = cell_number
+		for i in range(n, 0, -1):
+			neighbor = neighbors[neighbor][direction]
+			if neighbor == -1:
+				return -1
+		return neighbor
+		
+func check_cluster(board, cell_number, piece, cluster_length, cluster_direction):
+	if board[cell_number] != piece:
+		return false
+	
+	var neighbor = cell_number
+	for i in range(cluster_length, 1, -1):
+		neighbor = neighbors[neighbor][cluster_direction]
+		if neighbor == -1:
+			return false
+		elif board[neighbor] != piece:
+			return false
+	return true
 	
 func test_board():
 	for i in range(61):

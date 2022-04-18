@@ -32,22 +32,35 @@ class_name ClusterFinder
 #	else:
 #		return false
 
-static func check_two_cluster(board, cell_number, direction, piece): # checks if there is a two-element cluster of type 'piece' in a specific direction at a given cell number on a board
-	var neighbor_number = BoardManager.neighbors[cell_number][direction]
-	if neighbor_number != -1: # if this cell has a neighbor in the given direction
-		if board[cell_number] == piece and board[neighbor_number] == piece:
-			return true
-		else:
-			return false
-	else:
+#static func check_two_cluster(board, cell_number, direction, piece): # checks if there is a two-element cluster of type 'piece' in a specific direction at a given cell number on a board
+#	var neighbor_number = BoardManager.neighbors[cell_number][direction]
+#	if neighbor_number != -1: # if this cell has a neighbor in the given direction
+#		if board[cell_number] == piece and board[neighbor_number] == piece:
+#			return true
+#		else:
+#			return false
+#	else:
+#		return false
+#
+#static func check_three_cluster(board, cell_number, direction, piece): # checks if there is a three-element cluster of type 'piece' in a specific direction at a given cell number on a board
+#	var neighbor_number = BoardManager.neighbors[cell_number][direction]
+#	if neighbor_number != -1:
+#		if check_two_cluster(board, cell_number, direction, piece) and check_two_cluster(board, neighbor_number, direction, piece):
+#			return true
+#		else:
+#			return false
+#	else:
+#		return false
+
+static func check_cluster(board, cell_number, piece, cluster_length, direction):
+	if board[cell_number] != piece:
 		return false
-		
-static func check_three_cluster(board, cell_number, direction, piece): # checks if there is a three-element cluster of type 'piece' in a specific direction at a given cell number on a board
-	var neighbor_number = BoardManager.neighbors[cell_number][direction]
-	if neighbor_number != -1:
-		if check_two_cluster(board, cell_number, direction, piece) and check_two_cluster(board, neighbor_number, direction, piece):
-			return true
-		else:
+	
+	var neighbor = cell_number
+	for i in range(cluster_length, 1, -1):
+		neighbor = BoardManager.neighbors[neighbor][direction]
+		if neighbor == -1:
 			return false
-	else:
-		return false
+		elif board[neighbor] != piece:
+			return false
+	return true

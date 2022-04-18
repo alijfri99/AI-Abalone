@@ -20,6 +20,11 @@ _global_script_classes=[ {
 "path": "res://Scripts/ClusterFinder.gd"
 }, {
 "base": "Reference",
+"class": "Move",
+"language": "GDScript",
+"path": "res://Scripts/Move.gd"
+}, {
+"base": "Reference",
 "class": "One",
 "language": "GDScript",
 "path": "res://Scripts/Actions/One/One.gd"
@@ -32,6 +37,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Cluster": "",
 "ClusterFinder": "",
+"Move": "",
 "One": "",
 "State": ""
 }
