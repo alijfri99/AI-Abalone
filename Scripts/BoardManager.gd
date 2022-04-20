@@ -8,11 +8,6 @@ enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
 func _ready():
 	init_board()
 	# test_board()
-	current_board[30] = WHITE
-	current_board[31] = WHITE
-	current_board[32] = WHITE
-	current_board[33] = BLACK
-	current_board[34] = WHITE
 	var state = State.new(current_board, 0, 0)
 	Successor.calculate_successor(state, WHITE)
 	#print(get_stats(current_board, 13, WHITE, 3, L))
@@ -27,9 +22,9 @@ func init_board():
 	for i in range(61):
 		var cell_value = EMPTY
 		if (i >= 0 and i <= 10) or (i >= 13 and i <= 15):
-			cell_value = WHITE
-		elif (i >= 45 and i <= 47) or (i >= 50 and i <= 60):
 			cell_value = BLACK
+		elif (i >= 45 and i <= 47) or (i >= 50 and i <= 60):
+			cell_value = WHITE
 		else:
 			cell_value = EMPTY # determining the value of the current board cell
 		

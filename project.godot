@@ -10,16 +10,6 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Reference",
-"class": "Cluster",
-"language": "GDScript",
-"path": "res://Scripts/Cluster.gd"
-}, {
-"base": "Reference",
-"class": "ClusterFinder",
-"language": "GDScript",
-"path": "res://Scripts/ClusterFinder.gd"
-}, {
-"base": "Reference",
 "class": "Move",
 "language": "GDScript",
 "path": "res://Scripts/Move.gd"
@@ -35,8 +25,6 @@ _global_script_classes=[ {
 "path": "res://Scripts/State.gd"
 } ]
 _global_script_class_icons={
-"Cluster": "",
-"ClusterFinder": "",
 "Move": "",
 "One": "",
 "State": ""
