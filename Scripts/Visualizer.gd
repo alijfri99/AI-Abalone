@@ -5,8 +5,23 @@ onready var pieces = get_node(pieces_path)
 var white_piece = preload("res://Scenes/White Piece.tscn")
 var black_piece = preload("res://Scenes/Black Piece.tscn")
 
+var temp = []
+var sic = 0
+
 func _ready():
 	draw_complete_board(BoardManager.current_board)
+	for i in range(len(BoardManager.current_board)):
+		temp.append(BoardManager.current_board[i])
+	
+func _process(_delta):
+	if Input.is_action_just_pressed("ui_accept"):
+		if sic == 0:
+			update_board(BoardManager.successors[BoardManager.i].board)
+			print(BoardManager.successors[BoardManager.i].black_score, ", ", BoardManager.successors[BoardManager.i].white_score)
+			BoardManager.i = (BoardManager.i + 1) % len(BoardManager.successors)
+		else:
+			update_board(temp)
+		sic = (sic + 1) % 2
 	
 func update_board(new_board):
 	for child in pieces.get_children():

@@ -23,11 +23,17 @@ _global_script_classes=[ {
 "class": "State",
 "language": "GDScript",
 "path": "res://Scripts/State.gd"
+}, {
+"base": "Reference",
+"class": "Successor",
+"language": "GDScript",
+"path": "res://Scripts/Successor.gd"
 } ]
 _global_script_class_icons={
 "Move": "",
 "One": "",
-"State": ""
+"State": "",
+"Successor": ""
 }
 
 [application]
@@ -39,7 +45,6 @@ config/icon="res://icon.png"
 [autoload]
 
 BoardManager="*res://Scripts/BoardManager.gd"
-Successor="*res://Scripts/Successor.gd"
 
 [gdnative]
 

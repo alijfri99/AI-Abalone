@@ -4,14 +4,20 @@ var current_board = []
 var neighbors = []
 enum {EMPTY, BLACK, WHITE} # used to represent the board
 enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
+var successors = []
+var i = 0
 
 func _ready():
 	init_board()
 	# test_board()
+	current_board[26] = WHITE
+	current_board[27] = WHITE
+	current_board[28] = BLACK
+	current_board[29] = BLACK
+	current_board[30] = BLACK
 	var state = State.new(current_board, 0, 0)
-	Successor.calculate_successor(state, WHITE)
-	#print(get_stats(current_board, 13, WHITE, 3, L))
-	#print(Move.is_legal(state, 13, WHITE, 3, R, L))
+	successors = Successor.calculate_successor(state, BLACK)	
+
 func init_board():
 	var file = File.new()
 	file.open("res://adjacency_lists.json", File.READ)
