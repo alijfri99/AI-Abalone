@@ -10,13 +10,16 @@ var i = 0
 func _ready():
 	init_board()
 	# test_board()
-	current_board[26] = WHITE
-	current_board[27] = WHITE
-	current_board[28] = BLACK
-	current_board[29] = BLACK
-	current_board[30] = BLACK
+	current_board[26] = BLACK
+	current_board[27] = BLACK
+	current_board[28] = WHITE
+	current_board[29] = WHITE
+	current_board[30] = WHITE
+	current_board[36] = WHITE
+	current_board[43] = BLACK
 	var state = State.new(current_board, 0, 0)
-	successors = Successor.calculate_successor(state, BLACK)	
+	successors = Successor.calculate_successor(state, WHITE)	
+	print(len(successors))
 
 func init_board():
 	var file = File.new()
@@ -36,14 +39,6 @@ func init_board():
 		
 		current_board.append(cell_value)
 		neighbors.append(adjacency_lists[str(i)])
-
-#func get_nth_neighbor(cell_number, n, direction): # returns the nth neighbor of a cell in a given direction
-#		var neighbor = cell_number
-#		for i in range(n, 0, -1):
-#			neighbor = neighbors[neighbor][direction]
-#			if neighbor == -1:
-#				return -1
-#		return neighbor
 		
 func check_cluster(board, cell_number, piece, cluster_length, cluster_direction):
 	if board[cell_number] != piece:
@@ -59,20 +54,20 @@ func check_cluster(board, cell_number, piece, cluster_length, cluster_direction)
 	return true
 	
 func get_stats(board, cell_number, piece, cluster_length, cluster_direction):
-	var num_pieces = 0
+	var num_side_pieces = 0
 	var num_opponent_pieces = 0
 	var piece_has_space = false
 	var opponent_has_space = false
-	var sandwich = false
+	var is_sandwich = false
 	
 	var current_point = cell_number
 	for i in range(0, cluster_length + cluster_length):
 		if board[current_point] == piece:
 			if num_opponent_pieces > 0:
-				sandwich = true
+				is_sandwich = true
 				break
 			else:	
-				num_pieces += 1
+				num_side_pieces += 1
 				if neighbors[current_point][cluster_direction] != -1:
 					if board[neighbors[current_point][cluster_direction]] == EMPTY and i == cluster_length - 1:
 						piece_has_space = true
@@ -82,17 +77,19 @@ func get_stats(board, cell_number, piece, cluster_length, cluster_direction):
 			continue
 			
 		else: # opponent
-			if num_pieces == cluster_length:
+			if num_side_pieces == cluster_length:
 				num_opponent_pieces += 1
 			if neighbors[current_point][cluster_direction] != -1:
-				if board[neighbors[current_point][cluster_direction]] == EMPTY and piece_has_space == false and num_pieces == cluster_length and i != cluster_length + cluster_length - 1:
+				if board[neighbors[current_point][cluster_direction]] == EMPTY and piece_has_space == false and num_side_pieces == cluster_length and i != cluster_length + cluster_length - 1:
 					opponent_has_space = true
 					break
 		
 		current_point = neighbors[current_point][cluster_direction]
 		if current_point == -1:
 			break
-	return [num_pieces, num_opponent_pieces, piece_has_space, opponent_has_space, sandwich]
+	return {"number of side pieces" : num_side_pieces, "number of opponent pieces" : num_opponent_pieces, \
+			"piece has space" : piece_has_space, "opponent has space" : opponent_has_space, 
+			"is sandwich" : is_sandwich}
 	
 func test_board():
 	for i in range(61):

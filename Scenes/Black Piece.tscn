@@ -3,8 +3,7 @@
 [ext_resource path="res://Assets/Black Piece.tres" type="Material" id=1]
 
 [sub_resource type="SphereMesh" id=1]
-radial_segments = 8
-rings = 8
+rings = 64
 
 [node name="Black Piece" type="Spatial"]
 

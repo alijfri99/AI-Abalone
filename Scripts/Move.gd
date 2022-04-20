@@ -33,16 +33,16 @@ static func is_directional_move_legal(state, cell_number, piece, cluster_length,
 		
 	var stats = BoardManager.get_stats(state.board, starting_point, piece, cluster_length, move_direction)
 
-	if stats[4] == true: # sandwich
+	if stats["is sandwich"] == true:
 		return [false]
 	else:
-		if stats[2]: # piece has space
+		if stats["piece has space"]:
 			return [true, starting_point, cluster_length, false] # move is legal, shift as many as 'cluster length' pieces, score does not change
-		elif stats[3]: # opponent has space
-			return [true, starting_point, stats[0] + stats[1], false]
+		elif stats["opponent has space"]:
+			return [true, starting_point, stats["number of side pieces"] + stats["number of opponent pieces"], false]
 		else:
-			if stats[0] > stats[1] and stats[1] != 0:
-				return [true, starting_point, stats[0] + stats[1] - 1, true] # score changes
+			if stats["number of side pieces"] > stats["number of opponent pieces"] and stats["number of opponent pieces"] != 0:
+				return [true, starting_point, stats["number of side pieces"] + stats["number of opponent pieces"] - 1, true] # score changes
 			else:
 				return [false]
 				
@@ -55,18 +55,18 @@ static func execute_side_step_move(state, cell_number, piece, cluster_length, cl
 		
 static func execute_directional_move(state, piece, move_direction, status):
 	var current_point = status[1]
-	var n1 = 0
-	var n2 = 0
+	var next_1 = 0
+	var next_2 = 0
 	
 	state.board[current_point] = BoardManager.EMPTY
-	n1 = piece
-	n2 = state.board[BoardManager.neighbors[current_point][move_direction]]
+	next_1 = piece
+	next_2 = state.board[BoardManager.neighbors[current_point][move_direction]]
 	current_point = BoardManager.neighbors[current_point][move_direction]
 	for i in range(status[2]):
-		state.board[current_point] = n1
-		n1 = n2
+		state.board[current_point] = next_1
+		next_1 = next_2
 		if i != status[2] - 1:
-			n2 = state.board[BoardManager.neighbors[current_point][move_direction]]
+			next_2 = state.board[BoardManager.neighbors[current_point][move_direction]]
 		current_point = BoardManager.neighbors[current_point][move_direction]
 	if status[3]:
 		state.increase_score(piece)
