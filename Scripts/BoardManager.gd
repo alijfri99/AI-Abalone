@@ -1,7 +1,7 @@
 extends Node
 
 var current_board = []
-var neighbors = []
+var neighbors = {}
 enum {EMPTY, BLACK, WHITE} # used to represent the board
 enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
 var successors = []
@@ -19,7 +19,6 @@ func _ready():
 	current_board[43] = BLACK
 	var state = State.new(current_board, 0, 0)
 	successors = Successor.calculate_successor(state, WHITE)	
-	print(len(successors))
 
 func init_board():
 	var file = File.new()
@@ -28,17 +27,19 @@ func init_board():
 	var adjacency_lists = parse_json(raw_data)
 	file.close() # reading the file that specifies the adjacency lists and converting it to a dictionary
 	
-	for i in range(61):
+	for cell_number in range(61):
 		var cell_value = EMPTY
-		if (i >= 0 and i <= 10) or (i >= 13 and i <= 15):
+		if (cell_number >= 0 and cell_number <= 10) or (cell_number >= 13 and cell_number <= 15):
 			cell_value = BLACK
-		elif (i >= 45 and i <= 47) or (i >= 50 and i <= 60):
+		elif (cell_number >= 45 and cell_number <= 47) or (cell_number >= 50 and cell_number <= 60):
 			cell_value = WHITE
 		else:
 			cell_value = EMPTY # determining the value of the current board cell
 		
 		current_board.append(cell_value)
-		neighbors.append(adjacency_lists[str(i)])
+		neighbors[cell_number] = []
+		for neighbor in adjacency_lists[str(cell_number)]:
+			neighbors[cell_number].append(int(neighbor))
 		
 func check_cluster(board, cell_number, piece, cluster_length, cluster_direction):
 	if board[cell_number] != piece:
