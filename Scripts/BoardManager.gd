@@ -4,21 +4,10 @@ var current_board = []
 var neighbors = {}
 enum {EMPTY, BLACK, WHITE} # used to represent the board
 enum {L, UL, UR, R, DR, DL} # used to represent the directions of neighbors
-var successors = []
-var i = 0
 
 func _ready():
 	init_board()
 	# test_board()
-	current_board[26] = BLACK
-	current_board[27] = BLACK
-	current_board[28] = WHITE
-	current_board[29] = WHITE
-	current_board[30] = WHITE
-	current_board[36] = WHITE
-	current_board[43] = BLACK
-	var state = State.new(current_board, 0, 0)
-	successors = Successor.calculate_successor(state, WHITE)	
 
 func init_board():
 	var file = File.new()
@@ -62,7 +51,7 @@ func get_stats(board, cell_number, piece, cluster_length, cluster_direction):
 	var is_sandwich = false
 	
 	var current_point = cell_number
-	for i in range(0, cluster_length + cluster_length):
+	for i in range(cluster_length + cluster_length):
 		if board[current_point] == piece:
 			if num_opponent_pieces > 0:
 				is_sandwich = true

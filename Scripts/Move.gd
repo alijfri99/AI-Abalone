@@ -18,12 +18,12 @@ static func execute(state, cell_number, piece, cluster_length, cluster_direction
 static func is_side_step_move_legal(state, cell_number, piece, cluster_length, cluster_direction, move_direction):
 	var neighbor = BoardManager.neighbors[cell_number][move_direction]
 	if neighbor == -1:
-		return [false]
+		return {"move is legal" : false}
 	else:
 		if BoardManager.check_cluster(state.board, neighbor, BoardManager.EMPTY, cluster_length, cluster_direction):
-			return [true]
+			return {"move is legal" : true}
 		else:
-			return [false]
+			return {"move is legal" : false}
 	
 static func is_directional_move_legal(state, cell_number, piece, cluster_length, cluster_direction, move_direction):
 	var starting_point = cell_number
@@ -34,17 +34,22 @@ static func is_directional_move_legal(state, cell_number, piece, cluster_length,
 	var stats = BoardManager.get_stats(state.board, starting_point, piece, cluster_length, move_direction)
 
 	if stats["is sandwich"] == true:
-		return [false]
+		return {"move is legal" : false}
 	else:
 		if stats["piece has space"]:
-			return [true, starting_point, cluster_length, false] # move is legal, shift as many as 'cluster length' pieces, score does not change
+			return {"move is legal" : true, "starting point" : starting_point,\
+					 "shift amount" : cluster_length, "score changes" : false} # move is legal, shift as many as 'cluster length' pieces, score does not change
+		
 		elif stats["opponent has space"]:
-			return [true, starting_point, stats["number of side pieces"] + stats["number of opponent pieces"], false]
+			return {"move is legal" : true, "starting point" : starting_point,\
+			 		"shift amount" : stats["number of side pieces"] + stats["number of opponent pieces"], "score changes" : false}
+		
 		else:
 			if stats["number of side pieces"] > stats["number of opponent pieces"] and stats["number of opponent pieces"] != 0:
-				return [true, starting_point, stats["number of side pieces"] + stats["number of opponent pieces"] - 1, true] # score changes
+				return {"move is legal" : true, "starting point" : starting_point,\
+					 	"shift amount" : stats["number of side pieces"] + stats["number of opponent pieces"] - 1, "score changes" : true} # score changes
 			else:
-				return [false]
+				return {"move is legal" : false}
 				
 static func execute_side_step_move(state, cell_number, piece, cluster_length, cluster_direction, move_direction):
 	var current_point = cell_number
@@ -54,7 +59,7 @@ static func execute_side_step_move(state, cell_number, piece, cluster_length, cl
 		current_point = BoardManager.neighbors[current_point][cluster_direction]
 		
 static func execute_directional_move(state, piece, move_direction, status):
-	var current_point = status[1]
+	var current_point = status["starting point"]
 	var next_1 = 0
 	var next_2 = 0
 	
@@ -62,13 +67,13 @@ static func execute_directional_move(state, piece, move_direction, status):
 	next_1 = piece
 	next_2 = state.board[BoardManager.neighbors[current_point][move_direction]]
 	current_point = BoardManager.neighbors[current_point][move_direction]
-	for i in range(status[2]):
+	for i in range(status["shift amount"]):
 		state.board[current_point] = next_1
 		next_1 = next_2
-		if i != status[2] - 1:
+		if i != status["shift amount"] - 1:
 			next_2 = state.board[BoardManager.neighbors[current_point][move_direction]]
 		current_point = BoardManager.neighbors[current_point][move_direction]
-	if status[3]:
+	if status["score changes"]:
 		state.increase_score(piece)
 		
 static func get_possible_cluster_directions(cluster_length):
